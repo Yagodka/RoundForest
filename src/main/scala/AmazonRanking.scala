@@ -19,7 +19,7 @@ object AmazonRanking extends AmazonRanking {
 
   def main(args: Array[String]): Unit = {
 
-    val lines = sc.textFile("src/main/resources/reviews.csv")
+    val lines = sc.textFile("src/main/resources/reviews_dbg.csv")
     val rdd: RDD[Posting] = rawPostings(lines)
 
     // Finding 1000 most active users (profile names)
@@ -77,12 +77,12 @@ class AmazonRanking {
       }
 
   def translatePosts(rdd: RDD[Posting], hostApi: String = "https://api.google.com/translate") = {
-//    4.  We want to translate all the reviews using Google Translate API...
+    //    4.  We want to translate all the reviews using Google Translate API...
 
-//    To accomplish this task, I need a little more time. Affected by a lack of experience with the spar
-//    The idea is to screw Akka Stream, in which RDD will act as Source ...
-//    Apparently through the actor. Then you can use the Akka throttler in combination with the mapAsync
-//    But this is so ... theory.
+    //    To accomplish this task, I need a little more time. Affected by a lack of experience with the spar
+    //    The idea is to screw Akka Stream, in which RDD will act as Source ...
+    //    Apparently through the actor. Then you can use the Akka throttler in combination with the mapAsync
+    //    But this is so ... theory.
   }
 
   def printResult(title: String, result: List[(String, Int)]): Unit = {
