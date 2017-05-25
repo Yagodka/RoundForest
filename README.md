@@ -8,4 +8,6 @@ or simple
 
     sbt run
 
-Read, please answers.md and ankete
+Place the file "reviews.csv" in "src/main/resources"
+
+... and read, please answers.md
