@@ -5,7 +5,19 @@ case class Posting(productId: String,
                    userId: String,
                    profileName: String,
                    summary: String,
-                   text: String) extends Serializable
+                   text: String,
+                   words: Array[String]) extends Serializable
+object Posting {
+  def splitByWords(str: String): Array[String] =
+    str.toLowerCase.split("[ !\".,-:()><%$&+]").filter(_ != "")
+
+  def apply(productId: String,
+            userId: String,
+            profileName: String,
+            summary: String,
+            text: String): Posting =
+    new Posting(productId, userId, profileName, summary, text, splitByWords(summary) ++ splitByWords(text))
+}
 
 object AmazonRanking extends AmazonRanking {
 
@@ -19,7 +31,7 @@ object AmazonRanking extends AmazonRanking {
 
   def main(args: Array[String]): Unit = {
 
-    val lines = sc.textFile("src/main/resources/reviews_dbg.csv")
+    val lines = sc.textFile("src/main/resources/reviews.csv")
     val rdd: RDD[Posting] = rawPostings(lines)
 
     // Finding 1000 most active users (profile names)
@@ -67,7 +79,7 @@ class AmazonRanking {
     }
 
   def findMostUsedWords(rdd: RDD[Posting]): List[(String, Int)] =
-    rdd.flatMap(post => post.summary.split(" ") ++ post.text.split(" "))
+    rdd.flatMap(post => post.words)
       .map(word => (word, 1))
       .reduceByKey((acc, n) => acc + n)
       .sortBy(r => r._2, ascending = false)
