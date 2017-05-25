@@ -5,13 +5,13 @@ class AmazonSuite extends FlatSpec
   with Matchers with BeforeAndAfterAll {
 
   val testData = Seq(
-    Posting("productId 1", "profileName 3", "summary", "text"),
-    Posting("productId 1", "profileName 3", "summary", "text"),
-    Posting("productId 2", "profileName 2", "summary", "text text "),
-    Posting("productId 3", "profileName 1", "summary", "the text"),
-    Posting("productId 4", "profileName 1", "summary", "super"),
-    Posting("productId 4", "profileName 1", "summary", "super"),
-    Posting("productId 1", "profileName 3", "summary", "to text me")
+    Posting("productId 1", "user 3", "profileName 3", "summary", "text"),
+    Posting("productId 1", "user 3", "profileName 3", "summary", "text"),
+    Posting("productId 2", "user 2", "profileName 2", "summary", "text text "),
+    Posting("productId 3", "user 1", "profileName 1", "summary", "the text"),
+    Posting("productId 4", "user 1", "profileName 1", "summary", "super"),
+    Posting("productId 4", "user 1", "profileName 1", "summary", "super"),
+    Posting("productId 1", "user 3", "profileName 3", "summary", "to text me")
   )
 
   def initializeAmazonRanking(): Boolean =
