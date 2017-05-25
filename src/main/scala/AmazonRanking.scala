@@ -1,21 +1,27 @@
 import org.apache.spark.rdd.RDD
+import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
 case class Posting(productId: String,
+                   userId: String,
                    profileName: String,
                    summary: String,
                    text: String) extends Serializable
 
 object AmazonRanking extends AmazonRanking {
 
-  // TODO set config parameters
+  @transient lazy val conf: SparkConf = new SparkConf()
+  conf.set("spark.app.name", "Amazon")
+  conf.set("spark.master", "local")
+  conf.set("spark.executor.memory", "512m")
+  conf.set("spark.executor.cores", "4")
 
-  @transient lazy val conf: SparkConf = new SparkConf().setMaster("local").setAppName("Amazon")
   @transient lazy val sc: SparkContext = new SparkContext(conf)
+  val ssc = new StreamingContext(conf, Seconds(1))
 
   def main(args: Array[String]): Unit = {
 
-    val lines = sc.textFile("src/main/resources/reviews_dbg.csv")
+    val lines = sc.textFile("src/main/resources/reviews.csv")
     val rdd: RDD[Posting] = rawPostings(lines)
 
     // Finding 1000 most active users (profile names)
@@ -26,6 +32,11 @@ object AmazonRanking extends AmazonRanking {
 
     // Finding 1000 most used words in the reviews
     val mostUsedWords = findMostUsedWords(rdd)
+
+    args.length match {
+      case 1 => translatePosts(rdd)
+      case 2 => translatePosts(rdd, args(1))
+    }
 
     sc.stop()
 
@@ -45,6 +56,7 @@ class AmazonRanking {
         val arr = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1)
         Posting(
           productId = arr(1),
+          userId = arr(2),
           profileName = arr(3),
           summary = arr(8),
           text = arr(9))
@@ -63,7 +75,6 @@ class AmazonRanking {
 
   def findMostUsedWords(rdd: RDD[Posting]): List[(String, Int)] =
     rdd.flatMap(post => post.summary.split(" ") ++ post.text.split(" "))
-    // TODO -- regexp:  rdd.flatMap(post => post.summary.split("\"([^\"]*)\"|(\\S+)") ++ post.text.split("\"([^\"]*)\"|(\\S+)"))
       .map(word => (word, 1))
       .reduceByKey((acc, n) => acc + n)
       .sortBy(r => r._2, ascending = false)
@@ -71,6 +82,15 @@ class AmazonRanking {
       .sortWith {
         case (o1, o2) => o1._1 < o2._1
       }
+
+  def translatePosts(rdd: RDD[Posting], hostApi: String = "https://api.google.com/translate") = {
+
+//    To accomplish this task, I need a little more time. Affected by a lack of experience with the spar
+//    The idea is to screw Akka Stream, in which RDD will act as Source ...
+//    Apparently through the actor. Then you can use the Akka throttler in combination with the mapAsync
+//    But this is so ... theory.
+
+  }
 
   def printResult(title: String, result: List[(String, Int)]): Unit = {
     println(s"\n\r$title")

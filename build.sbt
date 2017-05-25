@@ -18,7 +18,8 @@ lazy val root = (project in file(".")).
   )
 
 lazy val sparkDeps = Seq(
-  "org.apache.spark" %% "spark-core" % "2.0.2"
+  "org.apache.spark" %% "spark-core" % "2.0.2",
+  "org.apache.spark" % "spark-streaming_2.11" % "2.0.2"
 )
 
 lazy val testDeps = Seq(
