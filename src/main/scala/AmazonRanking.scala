@@ -20,8 +20,22 @@ object AmazonRanking extends AmazonRanking {
   def main(args: Array[String]): Unit = {
 
     val lines = sc.textFile("src/main/resources/reviews_dbg.csv")
-    val raw = rawPostings(lines)
-    assert(raw.count() > 1000)
+    val rdd: RDD[Posting] = rawPostings(lines)
+
+    // Finding 1000 most active users (profile names)
+    val mostActiveUsers = mostRankingField(rdd, post => (post.profileName, post))
+    println(mostActiveUsers)
+
+    // Finding 1000 most commented food items (item ids)
+    val mostCommentedFoodItems = mostRankingField(rdd, post => (post.productId, post))
+    println(mostCommentedFoodItems)
+
+    // Finding 1000 most used words in the reviews
+    val mostUsedWords = rdd.flatMap(post => post.summary.split("\\s+") ++ post.text.split("\\s+"))
+      .map(word => (word, 1))
+      .reduceByKey((acc, n) => acc + n).sortBy(r => r._2, ascending = false).collect().toList
+    println(mostUsedWords)
+
   }
 }
 
@@ -42,6 +56,15 @@ class AmazonRanking {
           time = arr(7).toLong,
           summary = arr(8),
           text = arr(9))
-        // TODO intern? may be some fields Option???
       })
+
+  def mostRankingField(rdd: RDD[Posting], f: Posting => (String, Posting)): List[(String, Int)] =
+    rdd.map(f)
+      .groupByKey()
+      .map(i => (i._1, i._2.size))
+      .sortBy(r => r._2, ascending = false)
+      .collect()
+      .toList
+      .take(1000)
+
 }
