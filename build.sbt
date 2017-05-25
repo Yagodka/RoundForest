@@ -6,7 +6,8 @@ lazy val root = (project in file(".")).
     scalaVersion := "2.11.11",
     organization := "com.roundforest",
     libraryDependencies ++= Seq(
-      sparkDeps
+      sparkDeps,
+      testDeps
     ).flatten,
     scalacOptions := Seq(
       "-unchecked",
@@ -18,4 +19,9 @@ lazy val root = (project in file(".")).
 
 lazy val sparkDeps = Seq(
   "org.apache.spark" %% "spark-core" % "2.0.2"
+)
+
+lazy val testDeps = Seq(
+  "org.scalactic" %% "scalactic" % "3.0.1",
+  "org.scalatest" %% "scalatest" % "3.0.1" % Test
 )
